@@ -4,7 +4,7 @@ Spring Boot, Docker, Spring Cloud, Netflix Eureka, Netflix Zuul API Gateway Rabb
 
 # To run project
 
-Execute "mvn clean install" command for each project one by one.
+Execute "mvn clean install" command for each project one by one.<br>
 Execure "docker-compose -f docker-compose.yml up -d" command in projects home path.
 
 # To test and monitor aplication
