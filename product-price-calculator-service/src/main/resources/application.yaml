@@ -1,0 +1,48 @@
+server: 
+  port: 8000
+
+spring: 
+  application: 
+    name: product-price-calculator-service
+  sleuth:
+    sampler:
+      probability: 1.0
+  h2: 
+    console: 
+      enabled: true
+      settings: 
+        web-allow-others: true
+  jpa: 
+    defer-datasource-initialization: true
+    show-sql: true
+  zipkin:
+    baseUrl: ${ZIPKIN_SERVER:http://localhost:9411/}
+  rabbitmq:
+    host: ${RABBIT_HOST:localhost}
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USER:guest}
+    password: ${RABBIT_PASS:guest}
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 50000
+        readTimeout: 50000
+
+ribbon:
+  ConnectTimeout: 60000
+  ReadTimeout: 60000
+
+isZuleActive: false
+
+eureka: 
+  client: 
+    serviceUrl: 
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+  instance: 
+    preferIpAddress: true
+    hostname: localhost
+
+PRODUCT_PRICE_SERVICE_URL: http://localhost:8001
+

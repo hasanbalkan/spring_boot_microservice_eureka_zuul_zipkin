@@ -1,0 +1,103 @@
+version: '3.7'
+
+services:
+
+  eureka-server:
+    build:
+      context: eureka-server
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    restart: always
+    networks:
+      - eureka-server-network
+
+  rabbitmq:
+    image: rabbitmq:management-alpine
+    volumes:    
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    restart: always
+    networks:
+      - eureka-server-network
+
+  zipkin-server:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    environment:
+      STORAGE_TYPE: mem
+      RABBIT_HOST: rabbitmq
+      RABBIT_PORT: 5672
+      RABBIT_USER: guest
+      RABBIT_PASS: guest
+    ports:
+      - "9411:9411"
+    restart: always
+    depends_on:
+      - rabbitmq
+    networks:
+      - eureka-server-network
+
+  product-price-service:
+    build:
+      context: product-price-service
+      dockerfile: Dockerfile    
+    ports:
+      - "8001:8001"
+    restart: always
+    environment:
+      EUREKA_URL: http://eureka-server:8761/eureka
+      ZIPKIN_SERVER: http://zipkin-server:9411/
+      RABBIT_URI: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - eureka-server
+      - rabbitmq
+      - zipkin-server
+    networks:
+      - eureka-server-network
+
+  product-price-calculator-service:
+    build:
+      context: product-price-calculator-service
+      dockerfile: Dockerfile    
+    ports:
+      - "8000:8000"
+    restart: always
+    environment:
+      #PRODUCT_PRICE_SERVICE_URL: product-price-service:8001
+      EUREKA_URL: http://eureka-server:8761/eureka
+      ZIPKIN_SERVER: http://zipkin-server:9411/
+      RABBIT_URI: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - eureka-server
+      - rabbitmq
+      - zipkin-server
+      - product-price-service
+    networks:
+      - eureka-server-network
+
+  zuul-server:
+    build:
+      context: zuul-server
+      dockerfile: Dockerfile
+    environment:
+      EUREKA_URL: http://eureka-server:8761/eureka
+      ZIPKIN_SERVER: http://zipkin-server:9411/
+      RABBIT_HOST: rabbitmq
+      RABBIT_PORT: 5672
+      RABBIT_USER: guest
+      RABBIT_PASS: guest
+    ports:
+      - "8765:8765"
+    restart: always
+    depends_on:
+      - eureka-server
+      - rabbitmq
+      - zipkin-server
+    networks:
+      - eureka-server-network
+      
+networks:
+  eureka-server-network:
