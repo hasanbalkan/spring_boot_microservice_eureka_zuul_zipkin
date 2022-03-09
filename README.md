@@ -1,6 +1,6 @@
 # Some of used technologies
 
-Spring Boot, Spring Cloud, Netflix Eureka, Netflix Zuul API Gateway Rabbitmq, Zipkin, H2
+Spring Boot, Docker, Spring Cloud, Netflix Eureka, Netflix Zuul API Gateway Rabbitmq, Zipkin, H2
 
 # To run project
 
